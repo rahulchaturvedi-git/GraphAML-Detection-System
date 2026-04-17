@@ -22,4 +22,6 @@ def start():
 
         print(f"[FEATURE] Processing tx: {tx['transaction_id']} | account: {tx['source_account']}")
 
+        print("CONSUMER RECEIVED:", tx)
+
         engine.update_features(tx)
