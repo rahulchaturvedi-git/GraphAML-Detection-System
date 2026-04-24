@@ -14,15 +14,23 @@ class FeatureEngine:
         MERGE (s:Account {account_id: $source})
         MERGE (d:Account {account_id: $destination})
 
+        MERGE (s)-[:SENT]->(d)   // 🔴 ADD THIS
+
         SET s.out_degree = coalesce(s.out_degree, 0) + 1,
             s.total_sent = coalesce(s.total_sent, 0) + $amount
 
         SET d.in_degree = coalesce(d.in_degree, 0) + 1,
             d.total_received = coalesce(d.total_received, 0) + $amount
 
-        // 🔴 FIX: label on BOTH nodes
-        SET s.is_laundering = coalesce(s.is_laundering, 0) + $label,
-            d.is_laundering = coalesce(d.is_laundering, 0) + $label
+        SET s.is_laundering = CASE 
+            WHEN $label = 1 THEN 1 
+            ELSE coalesce(s.is_laundering, 0) 
+        END,
+
+        d.is_laundering = CASE 
+            WHEN $label = 1 THEN 1 
+            ELSE coalesce(d.is_laundering, 0) 
+        END
 
         WITH s, $timestamp AS ts
         SET s.tx_times = coalesce(s.tx_times, []) + ts

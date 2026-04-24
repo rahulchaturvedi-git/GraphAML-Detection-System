@@ -1,0 +1,100 @@
+PROJECT ROOT
+~/projects/aml-tx-detection
+
+TERMINAL 1 — INFRA (Docker)
+
+cd ~/projects/aml-tx-detection
+sudo docker start neo4j
+sudo docker start redpanda
+
+TERMINAL 2 — GRAPH BUILDER (MOST IMPORTANT)
+
+cd ~/projects/aml-tx-detection/services/graph-builder
+source ../../venv/bin/activate
+export PYTHONPATH=$(pwd)
+python -m app.main
+
+(Keep this open — shows Kafka messages)
+
+TERMINAL 3 — INGESTION SERVICE
+
+cd ~/projects/aml-tx-detection/services/ingestion-service
+source ../../venv/bin/activate
+uvicorn app.main:app --reload --port 8000
+
+Check: http://127.0.0.1:8000/docs
+
+TERMINAL 4 — ALERT SERVICE (optional)
+
+cd ~/projects/aml-tx-detection/services/alert-service
+source ../../venv/bin/activate
+uvicorn app.main:app --reload --port 8001
+
+TERMINAL 5 — FEATURE SERVICE (optional)
+
+cd ~/projects/aml-tx-detection/services/feature-service
+source ../../venv/bin/activate
+python -m app.main
+
+TERMINAL 6 — LOADER (run only when needed)
+
+cd ~/projects/aml-tx-detection
+python scripts/load_aml_dataset.py
+
+CORRECT START ORDER
+
+Docker
+Graph Builder
+Ingestion
+(Optional services)
+Loader
+
+QUICK TEST (ALWAYS DO)
+
+curl -X POST http://127.0.0.1:8000/ingest
+
+-H "Content-Type: application/json"
+-d '{"transaction_id":"t1","source_account":"A1","destination_account":"A2","amount":100,"timestamp":123,"currency":"USD","channel":"online","country":"US","label":1}'
+
+Then check graph-builder terminal → must show:
+CONSUMER RECEIVED: {...}
+
+NEO4J CHECK
+
+MATCH (a:Account)
+RETURN a.account_id, a.is_laundering;
+
+ML FLOW
+
+python ml/export.py
+python ml/train_model.py
+
+IF SOMETHING BREAKS
+
+Kill everything
+pkill -f uvicorn
+pkill -f consumer
+pkill -f python
+Restart Docker
+sudo docker restart redpanda
+sudo docker restart neo4j
+Restart all terminals in order
+
+PIPELINE FLOW
+
+Loader / curl
+→ Ingestion API
+→ Kafka (Redpanda)
+→ Graph Builder (consumer)
+→ Neo4j
+→ ML
+
+CRITICAL RULES
+
+Kafka topic must match in both services
+Always check graph-builder terminal first
+Never debug from Neo4j directly
+Split data before balancing in ML
+Do not push dataset to GitHub
+
+This is your complete operating manual.
