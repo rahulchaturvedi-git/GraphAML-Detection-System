@@ -1,0 +1,7 @@
+data/raw/.gitkeep
+data/processed/.gitkeep
+data/features/.gitkeep
+data/embeddings/.gitkeep
+data/train/.gitkeep
+data/validation/.gitkeep
+data/test/.gitkeep
