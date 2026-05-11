@@ -22,3 +22,14 @@ data/aml/
 # OS
 .DS_Store
 Thumbs.db
+
+*.csv
+*.parquet
+*.pkl
+*.joblib
+data/raw/*
+data/processed/*
+data/train/*
+data/test/*
+data/validation/*
+!data/**/.gitkeep
