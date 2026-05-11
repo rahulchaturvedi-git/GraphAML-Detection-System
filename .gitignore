@@ -1,12 +1,24 @@
+# Virtual Environment
 venv/
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Environment
 .env
-.neo4j/
-.DS_Store
-*.log
-#large data files
-data/
-*.csv
+
+# Model Files
+*.pkl
+
+# Dataset
+data/aml/
 *.zip
-terminals/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db

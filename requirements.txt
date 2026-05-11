@@ -1,0 +1,34 @@
+# Core API
+fastapi
+uvicorn[standard]
+
+# Data Processing
+pandas
+numpy
+
+# Machine Learning
+scikit-learn
+joblib
+
+# Graph Database
+neo4j
+
+# Kafka Streaming
+kafka-python
+
+# HTTP Requests
+requests
+
+# Environment Variables
+python-dotenv
+
+# Optional Utilities
+python-multipart
+pydantic
+
+# Development / Notebook Support
+jupyter
+ipykernel
+
+# Visualization / Analysis
+matplotlib
