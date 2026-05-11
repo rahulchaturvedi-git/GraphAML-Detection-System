@@ -1,4 +1,3 @@
-````markdown
 # Graph-Based AML Detection System
 
 ## Overview
@@ -360,8 +359,3 @@ The scoring API provides explainable predictions using feature contribution appr
 - Docker Compose deployment
 
 ---
-
-# Author
-
-**Rahul Chaturvedi**
-````
