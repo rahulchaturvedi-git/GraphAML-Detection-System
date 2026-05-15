@@ -3,7 +3,10 @@ import pandas as pd
 from synthetic.fraud_patterns import (
     generate_structuring_pattern,
     generate_layering_pattern,
-    generate_smurfing_pattern
+    generate_smurfing_pattern,
+    generate_circular_laundering,
+    generate_fan_out_pattern,
+    generate_fan_in_pattern
 )
 
 from synthetic.normal_transactions import (
@@ -33,6 +36,17 @@ all_transactions.extend(
     generate_smurfing_pattern()
 )
 
+all_transactions.extend(
+    generate_circular_laundering()
+)
+
+all_transactions.extend(
+    generate_fan_out_pattern()
+)
+
+all_transactions.extend(
+    generate_fan_in_pattern()
+)
 
 # CREATE DATAFRAME
 df = pd.DataFrame(all_transactions)

@@ -69,3 +69,77 @@ def generate_smurfing_pattern():
         })
 
     return transactions
+
+def generate_circular_laundering():
+
+    accounts = [
+        "CIRC_A",
+        "CIRC_B",
+        "CIRC_C"
+    ]
+
+    transactions = []
+
+    for i in range(3):
+
+        transactions.append({
+            "transaction_id": f"CIRC_{i}",
+            "from_account": accounts[i],
+            "to_account": accounts[(i + 1) % 3],
+            "amount": 25000,
+            "timestamp": (
+                datetime.now() + timedelta(minutes=i)
+            ).isoformat(),
+            "label": 1,
+            "pattern": "circular"
+        })
+
+    return transactions
+
+
+def generate_fan_out_pattern():
+
+    transactions = []
+
+    source = "MASTER_FANOUT"
+
+    for i in range(20):
+
+        transactions.append({
+            "transaction_id": f"FANOUT_{i}",
+            "from_account": source,
+            "to_account": f"TARGET_{i}",
+            "amount": random.randint(1000, 10000),
+            "timestamp": (
+                datetime.now() + timedelta(seconds=i * 5)
+            ).isoformat(),
+            "label": 1,
+            "pattern": "fan_out"
+        })
+
+    return transactions
+
+
+def generate_fan_in_pattern():
+
+    transactions = []
+
+    target = "MASTER_FANIN"
+
+    for i in range(20):
+
+        transactions.append({
+            "transaction_id": f"FANIN_{i}",
+            "from_account": f"SRC_{i}",
+            "to_account": target,
+            "amount": random.randint(1000, 10000),
+            "timestamp": (
+                datetime.now() + timedelta(seconds=i * 5)
+            ).isoformat(),
+            "label": 1,
+            "pattern": "fan_in"
+        })
+
+    return transactions
+
+
