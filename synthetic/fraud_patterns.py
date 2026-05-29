@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, timedelta
+import time
 
 
 def generate_structuring_pattern(num_tx=20):
@@ -12,12 +12,13 @@ def generate_structuring_pattern(num_tx=20):
 
         transactions.append({
             "transaction_id": f"STR_{i}",
-            "from_account": f"ACC_{random.randint(10000,99999)}",
-            "to_account": mule_account,
+            "source_account": f"ACC_{random.randint(10000,99999)}",
+            "destination_account": mule_account,
             "amount": round(random.uniform(9800, 9950), 2),
-            "timestamp": (
-                datetime.now() + timedelta(minutes=i)
-            ).isoformat(),
+            "timestamp": int(time.time()) + i,
+            "currency": "INR",
+            "channel": "wire",
+            "country": "IND",
             "label": 1,
             "pattern": "structuring"
         })
@@ -35,12 +36,13 @@ def generate_layering_pattern():
 
         transactions.append({
             "transaction_id": f"LAY_{i}",
-            "from_account": accounts[i],
-            "to_account": accounts[i + 1],
+            "source_account": accounts[i],
+            "destination_account": accounts[i + 1],
             "amount": 50000,
-            "timestamp": (
-                datetime.now() + timedelta(seconds=i * 30)
-            ).isoformat(),
+            "timestamp": int(time.time()) + i,
+            "currency": "INR",
+            "channel": "wire",
+            "country": "IND",
             "label": 1,
             "pattern": "layering"
         })
@@ -58,17 +60,19 @@ def generate_smurfing_pattern():
 
         transactions.append({
             "transaction_id": f"SMU_{i}",
-            "from_account": f"SMURF_{i}",
-            "to_account": central,
+            "source_account": f"SMURF_{i}",
+            "destination_account": central,
             "amount": round(random.uniform(500, 2000), 2),
-            "timestamp": (
-                datetime.now() + timedelta(seconds=i * 10)
-            ).isoformat(),
+            "timestamp": int(time.time()) + i,
+            "currency": "INR",
+            "channel": "upi",
+            "country": "IND",
             "label": 1,
             "pattern": "smurfing"
         })
 
     return transactions
+
 
 def generate_circular_laundering():
 
@@ -84,12 +88,13 @@ def generate_circular_laundering():
 
         transactions.append({
             "transaction_id": f"CIRC_{i}",
-            "from_account": accounts[i],
-            "to_account": accounts[(i + 1) % 3],
+            "source_account": accounts[i],
+            "destination_account": accounts[(i + 1) % 3],
             "amount": 25000,
-            "timestamp": (
-                datetime.now() + timedelta(minutes=i)
-            ).isoformat(),
+            "timestamp": int(time.time()) + i,
+            "currency": "INR",
+            "channel": "wire",
+            "country": "IND",
             "label": 1,
             "pattern": "circular"
         })
@@ -107,12 +112,13 @@ def generate_fan_out_pattern():
 
         transactions.append({
             "transaction_id": f"FANOUT_{i}",
-            "from_account": source,
-            "to_account": f"TARGET_{i}",
+            "source_account": source,
+            "destination_account": f"TARGET_{i}",
             "amount": random.randint(1000, 10000),
-            "timestamp": (
-                datetime.now() + timedelta(seconds=i * 5)
-            ).isoformat(),
+            "timestamp": int(time.time()) + i,
+            "currency": "INR",
+            "channel": "wire",
+            "country": "IND",
             "label": 1,
             "pattern": "fan_out"
         })
@@ -130,16 +136,15 @@ def generate_fan_in_pattern():
 
         transactions.append({
             "transaction_id": f"FANIN_{i}",
-            "from_account": f"SRC_{i}",
-            "to_account": target,
+            "source_account": f"SRC_{i}",
+            "destination_account": target,
             "amount": random.randint(1000, 10000),
-            "timestamp": (
-                datetime.now() + timedelta(seconds=i * 5)
-            ).isoformat(),
+            "timestamp": int(time.time()) + i,
+            "currency": "INR",
+            "channel": "wire",
+            "country": "IND",
             "label": 1,
             "pattern": "fan_in"
         })
 
     return transactions
-
-
