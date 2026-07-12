@@ -1,79 +1,123 @@
+from pathlib import Path
+import joblib
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
-from sklearn.utils import resample
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    roc_auc_score
+)
 
-# Load
-df = pd.read_csv("ml/aml_features.csv")
-df = df.fillna(0)
+from xgboost import XGBClassifier
 
+
+# -------------------------
+# Load Dataset
+# -------------------------
+
+df = pd.read_parquet(
+    Path("../data/features/graph_features_latest.parquet")
+)
+
+df.fillna(0, inplace=True)
+
+# -------------------------
+# Encode categoricals
+# -------------------------
+
+for col in ["channel", "country", "currency"]:
+
+    encoder = LabelEncoder()
+
+    df[col] = encoder.fit_transform(df[col])
+
+# -------------------------
 # Features
-X = df.drop(columns=["account_id", "label"])
+# -------------------------
+
+X = df.drop(
+    columns=[
+        "transaction_id",
+        "sender",
+        "receiver",
+        "label"
+    ]
+)
+
 y = df["label"]
 
-# 🔴 SPLIT FIRST
+# -------------------------
+# Train/Test Split
+# -------------------------
+
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y
 )
 
-# Combine training
-train_df = X_train.copy()
-train_df["label"] = y_train
+# -------------------------
+# XGBoost
+# -------------------------
 
-# Separate classes
-df_majority = train_df[train_df.label == 0]
-df_minority = train_df[train_df.label == 1]
+model = XGBClassifier(
 
-print("Train BEFORE balancing:")
-print(train_df["label"].value_counts())
+    n_estimators=300,
 
-# 🔴 Upsample ONLY train
-df_minority_upsampled = resample(
-    df_minority,
-    replace=True,
-    n_samples=len(df_majority),
-    random_state=42
-)
+    max_depth=6,
 
-train_balanced = pd.concat([df_majority, df_minority_upsampled])
+    learning_rate=0.05,
 
-print("\nTrain AFTER balancing:")
-print(train_balanced["label"].value_counts())
+    subsample=0.8,
 
-# Final train
-X_train = train_balanced.drop(columns=["label"])
-y_train = train_balanced["label"]
+    colsample_bytree=0.8,
 
-# Model
-model = RandomForestClassifier(
-    n_estimators=200,
-    max_depth=10,
-    class_weight="balanced",
-    random_state=42
+    scale_pos_weight=40,
+
+    random_state=42,
+
+    eval_metric="logloss"
 )
 
 model.fit(X_train, y_train)
 
-# 🔴 PROBABILITY-BASED PREDICTION (IMPORTANT)
+# -------------------------
+# Prediction
+# -------------------------
+
 y_prob = model.predict_proba(X_test)[:, 1]
 
-# 🔴 LOWER THRESHOLD FOR BETTER RECALL
-threshold = 0.2
-y_pred = (y_prob > threshold).astype(int)
+threshold = 0.30
 
-print("\nTEST RESULTS (threshold=0.2):")
+y_pred = (y_prob >= threshold).astype(int)
+
+print()
+
 print(classification_report(y_test, y_pred))
 
-print(y_prob[:20])
+print()
 
-print("\nFeature importance:")
-for name, val in zip(X.columns, model.feature_importances_):
-    print(name, round(val, 3))
+print("ROC-AUC:", roc_auc_score(y_test, y_prob))
 
+print()
 
-import joblib
+print(confusion_matrix(y_test, y_pred))
 
-# Save model
-joblib.dump(model, "ml/aml_model.pkl")
-print("Model saved at ml/aml_model.pkl")
+# -------------------------
+# Save Model
+# -------------------------
+
+Path("models").mkdir(exist_ok=True)
+
+joblib.dump(
+    model,
+    "models/aml_xgboost.pkl"
+)
+
+print()
+
+print("Model Saved")
