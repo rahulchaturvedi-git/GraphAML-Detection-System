@@ -33,3 +33,11 @@ data/train/*
 data/test/*
 data/validation/*
 !data/**/.gitkeep
+
+# ML artifacts
+ml/models/
+ml/metrics/
+
+# Generated datasets
+data/features/graph_features_latest.parquet
+data/features/graph_features_*.parquet

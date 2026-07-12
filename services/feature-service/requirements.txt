@@ -1,0 +1,6 @@
+fastapi
+neo4j
+pandas
+pyarrow
+python-dotenv
+uvicorn
